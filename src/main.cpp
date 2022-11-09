@@ -8,7 +8,7 @@ void execute_batch(const std::string& path, const std::string& data) {
 }
 
 int main() try {
-	auto home_path = qpl::filesys::get_current_location().get_parent_branch();
+	auto home_path = qpl::filesys::get_current_location();
 	std::string github = "https://github.com/DanielRabl";
 
 	auto list = home_path.list_current_directory();
