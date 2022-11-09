@@ -36,22 +36,6 @@ int main() try {
 	}
 	qpl::println("target = ", target);
 
-	qpl::println();
-	std::string github_name;
-	while (true) {
-		qpl::print("github project name [ enter to use \"", target.get_directory_name(), "\" ] > ");
-		auto input = qpl::get_input();
-
-		if (input.empty()) {
-			github_name = target.get_directory_name();
-			break;
-		}
-		else {
-			github_name = input;
-		}
-	}
-	auto github_url = qpl::to_string(github, "/", github_name, ".git");
-
 	auto git_target = target;
 	git_target.append("git/");
 	git_target.ensure_branches_exist();
@@ -65,10 +49,38 @@ int main() try {
 		}
 	}
 	if (already_git_directory) {
+		qpl::println();
 		qpl::println(target, " already has git/.git");
-		qpl::system_pause();
-		return 0;
+		while (true) {
+			qpl::print("would you like to reset the folder? (y/n) > ");
+			auto input = qpl::get_input();
+
+			if (qpl::string_equals_ignore_case(input, "y")) {
+				git_target.remove();
+				git_target.ensure_branches_exist();
+				break;
+			}
+			else if (qpl::string_equals_ignore_case(input, "n")) {
+				return 0;
+			}
+		}
 	}
+
+	qpl::println();
+	std::string github_repos_name;
+	while (true) {
+		qpl::print("github repository name [ enter to use \"", target.get_directory_name(), "\" ] > ");
+		auto input = qpl::get_input();
+
+		if (input.empty()) {
+			github_repos_name = target.get_directory_name();
+			break;
+		}
+		else {
+			github_repos_name = input;
+		}
+	}
+	auto github_url = qpl::to_string(github, "/", github_repos_name, ".git");
 
 	qpl::println();
 	bool push = false;
@@ -105,6 +117,13 @@ int main() try {
 	qpl::println();
 	qpl::println("data = ", batch_data);
 	execute_batch(batch, batch_data);
+
+
+	if (push) {
+		auto empty = git_target;
+		empty.append("empty");
+		empty.remove();
+	}
 }
 catch (std::exception& any) {
 	qpl::println("caught exception:\n", any.what());
