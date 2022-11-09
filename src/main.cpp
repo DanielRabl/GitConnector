@@ -8,9 +8,8 @@ void execute_batch(const std::string& path, const std::string& data) {
 }
 
 int main() try {
-	//auto path = qpl::filesys::get_current_location();
+	auto home_path = qpl::filesys::get_current_location().get_parent_branch();
 	std::string github = "https://github.com/DanielRabl";
-	auto home_path = qpl::filesys::path("D:/VisualStudio2022/");
 
 	auto list = home_path.list_current_directory();
 	list.list_remove_files();
@@ -115,9 +114,8 @@ int main() try {
 		batch_data.append(" && git pull --set-upstream origin main");
 	}
 	qpl::println();
-	qpl::println("data = ", batch_data);
+	qpl::println("execute = ", batch_data);
 	execute_batch(batch, batch_data);
-
 
 	if (push) {
 		auto empty = git_target;
