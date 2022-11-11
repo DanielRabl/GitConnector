@@ -1,5 +1,99 @@
 #include <qpl/qpl.hpp>
 
+qpl::filesys::path select_from_directory(const qpl::filesys::paths& directories) {
+	while (true) {
+		qpl::print("select a directory > ");
+		auto input = qpl::get_input();
+
+		bool valid_input = true;
+		std::vector<std::string> list;
+		for (auto& i : directories) {
+			if (i.get_directory_name().length() >= input.length()) {
+				list.push_back(i.get_directory_name().substr(0u, input.length()));
+			}
+			else {
+				list.push_back("");
+			}
+		}
+		auto best_match_indices = qpl::best_string_matches_indices(list, input);
+
+		bool started_match = false;
+		for (auto& i : list) {
+			if (qpl::string_starts_with_ignore_case(i, input)) {
+				started_match = true;
+				break;
+			}
+		}
+
+		qpl::filesys::path target;
+
+		if (!started_match) {
+			qpl::println("couldn't find a directory named \"", input, "\".");
+
+			if (best_match_indices.size() > 1) {
+				while (true) {
+					qpl::println("select the right location: [enter to go back] \n");
+					for (qpl::size i = 0u; i < best_match_indices.size(); ++i) {
+						qpl::println(qpl::color::aqua, qpl::to_string('<', i, '>'), " ", directories[best_match_indices[i]]);
+					}
+					qpl::print("> ");
+					auto number = qpl::get_input();
+					if (qpl::is_string_number(number)) {
+						auto index = qpl::size_cast(number);
+						if (index < best_match_indices.size()) {
+							target = directories[best_match_indices[index]];
+							break;
+						}
+					}
+					valid_input = false;
+					break;
+				}
+			}
+			else {
+				while (true) {
+					qpl::print("did you mean this location ", qpl::color::aqua, directories[best_match_indices.front()], "? (y / n) > ");
+					auto input = qpl::get_input();
+					if (qpl::string_equals_ignore_case(input, "y")) {
+						target = directories[best_match_indices.front()];
+						break;
+					}
+					else if (qpl::string_equals_ignore_case(input, "n")) {
+						valid_input = false;
+						break;
+					}
+					qpl::println("invalid input \"", input, "\".\n");
+				}
+			}
+		}
+		else {
+			target = directories[best_match_indices.front()];
+			if (best_match_indices.size() > 1) {
+				while (true) {
+					qpl::println("there are multiple directories that match \"", input, "\".");
+					qpl::println("did you mean any of these locations? [enter to go back] ");
+					for (qpl::size i = 0u; i < best_match_indices.size(); ++i) {
+						qpl::println(qpl::color::aqua, qpl::to_string('<', i, '>'), " ", directories[best_match_indices[i]]);
+					}
+					qpl::print("> ");
+					auto number = qpl::get_input();
+					if (qpl::is_string_number(number)) {
+						auto index = qpl::size_cast(number);
+						if (index < best_match_indices.size()) {
+							target = directories[best_match_indices[index]];
+							break;
+						}
+					}
+					valid_input = false;
+					break;
+				}
+			}
+		}
+
+		if (valid_input) {
+			return target;
+		}
+	}
+}
 
 void execute_batch(const std::string& path, const std::string& data) {
 	qpl::filesys::create_file(path, data);
@@ -16,24 +110,10 @@ int main() try {
 	list.print_tree();
 	qpl::println();
 
-	qpl::filesys::path target;
-	while (true) {
-		qpl::print("select directory > ");
-		auto directory = qpl::get_input();
+	qpl::filesys::path target = select_from_directory(list);
 
-		list = home_path.list_current_directory();
-		for (auto& path : list) {
-			if (qpl::string_equals_ignore_case(directory, path.get_directory_name())) {
-				target = path.ensured_directory_backslash();
-				break;
-			}
-		}
-		if (!target.empty()) {
-			break;
-		}
-		qpl::println("couldn't find directory \"", directory, "\"");
-	}
-	qpl::println("target = ", target);
+	qpl::println("selected: ", qpl::color::aqua, target);
+	qpl::system_pause();
 
 	auto git_target = target;
 	git_target.append("git/");
