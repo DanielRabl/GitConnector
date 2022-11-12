@@ -111,9 +111,9 @@ int main() try {
 	qpl::println();
 
 	qpl::filesys::path target = select_from_directory(list);
+	target.ensure_directory_backslash();
 
 	qpl::println("selected: ", qpl::color::aqua, target);
-	qpl::system_pause();
 
 	auto git_target = target;
 	git_target.append("git/");
