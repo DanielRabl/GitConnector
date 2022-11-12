@@ -202,6 +202,7 @@ int main() try {
 		empty.append("empty");
 		empty.remove();
 	}
+	qpl::system_pause();
 }
 catch (std::exception& any) {
 	qpl::println("caught exception:\n", any.what());
