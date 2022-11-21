@@ -157,6 +157,7 @@ int main() try {
 		}
 		else {
 			github_repos_name = input;
+			break;
 		}
 	}
 	auto github_url = qpl::to_string(github, "/", github_repos_name, ".git");
