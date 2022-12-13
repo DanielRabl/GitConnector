@@ -2,8 +2,17 @@
 
 qpl::filesys::path select_from_directory(const qpl::filesys::paths& directories) {
 	while (true) {
-		qpl::print("select a directory > ");
+		qpl::print("select a directory (or input full path) > ");
 		auto input = qpl::get_input();
+
+		auto is_directory = std::ranges::find(input, '/') != input.cend();
+		if (is_directory) {
+			qpl::filesys::path path = input;
+			if (!path.exists()) {
+				qpl::println("directory \"", path, "\" doesn't exist.");
+				continue;
+			}
+		}
 
 		bool valid_input = true;
 		std::vector<std::string> list;
@@ -185,7 +194,7 @@ int main() try {
 	}
 
 	auto set_directory = qpl::to_string("cd ", git_target);
-	auto batch = home_path.appended("git_connector.bat");
+	auto batch = home_path.ensured_directory_backslash().appended("git_connector.bat");
 	auto batch_data = qpl::to_string(set_directory, " && git init && git remote add origin ", github_url, " && git branch -M main");
 
 	if (push) {
