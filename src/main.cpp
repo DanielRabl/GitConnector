@@ -182,11 +182,9 @@ int main() try {
 
 		if (input.empty()) {
 			github_repos_name = target.get_directory_name();
-			break;
 		}
 		else {
 			github_repos_name = input;
-			break;
 		}
 
 		github_url = qpl::to_string(github, "/", github_repos_name, ".git");
