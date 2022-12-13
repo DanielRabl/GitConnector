@@ -126,9 +126,26 @@ int main() try {
 
 	qpl::println("selected: ", qpl::color::aqua, target);
 
+	bool append_git = false;
+	while (true) {
+		qpl::print("create a /git folder inside? (y/n) > ");
+		auto input = qpl::get_input();
+		if (qpl::string_equals_ignore_case(input, "y")) {
+			append_git = true;
+			break;
+		}
+		else if (qpl::string_equals_ignore_case(input, "n")) {
+			append_git = false;
+			break;
+		}
+		qpl::println("\"", input, "\": invalid input");
+	}
+
 	auto git_target = target;
-	git_target.append("git/");
-	git_target.ensure_branches_exist();
+	if (append_git) {
+		git_target.append("git/");
+		git_target.ensure_branches_exist();
+	}
 
 	list = git_target.list_current_directory();
 	bool already_git_directory = false;
@@ -157,6 +174,7 @@ int main() try {
 	}
 
 	qpl::println();
+	std::string github_url;
 	std::string github_repos_name;
 	while (true) {
 		qpl::print("github repository name [ enter to use \"", target.get_directory_name(), "\" ] > ");
@@ -170,8 +188,29 @@ int main() try {
 			github_repos_name = input;
 			break;
 		}
+
+		github_url = qpl::to_string(github, "/", github_repos_name, ".git");
+
+		auto output_file = home_path.ensured_directory_backslash().appended("output.txt");
+		auto batch = home_path.ensured_directory_backslash().appended("git_check_repos.bat");
+		auto batch_data = qpl::to_string("@echo off && git ls-remote ", github_url, " > ", output_file);
+		execute_batch(batch, batch_data);
+
+		auto lines = qpl::split_string(qpl::filesys::read_file(output_file), '\n');
+		if (lines.empty()) {
+			qpl::println("error: empty git repos status output.txt");
+		}
+		else {
+			output_file.remove();
+			if (lines[0].starts_with("remote: Repository not found.")) {
+				qpl::println("error: ", github_url, ": no such repository exists.");
+			}
+			else {
+				qpl::println("found repository ", github_url, ".");
+				break;
+			}
+		}
 	}
-	auto github_url = qpl::to_string(github, "/", github_repos_name, ".git");
 
 	qpl::println();
 	bool push = false;
