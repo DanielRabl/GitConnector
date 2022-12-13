@@ -5,14 +5,15 @@ qpl::filesys::path select_from_directory(const qpl::filesys::paths& directories)
 		qpl::print("select a directory (or input full path) > ");
 		auto input = qpl::get_input();
 
-		auto is_directory = std::ranges::find(input, '/') != input.cend();
+		qpl::filesys::path input_path = input;
+		auto search = input_path.string();
+		auto is_directory = std::ranges::find(search, '/') != search.cend();
 		if (is_directory) {
-			qpl::filesys::path path = input;
-			if (!path.exists()) {
-				qpl::println("directory \"", path, "\" doesn't exist.");
+			if (!input_path.exists()) {
+				qpl::println("directory \"", input_path, "\" doesn't exist.");
 				continue;
 			}
-			return path;
+			return input_path;
 		}
 
 		bool valid_input = true;
