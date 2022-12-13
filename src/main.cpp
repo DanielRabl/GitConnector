@@ -12,6 +12,7 @@ qpl::filesys::path select_from_directory(const qpl::filesys::paths& directories)
 				qpl::println("directory \"", path, "\" doesn't exist.");
 				continue;
 			}
+			return path;
 		}
 
 		bool valid_input = true;
