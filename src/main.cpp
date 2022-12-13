@@ -204,7 +204,7 @@ int main() try {
 				qpl::println("error: ", github_url, ": no such repository exists.");
 			}
 			else {
-				qpl::println("found repository ", github_url, ".");
+				qpl::println("found repository ", qpl::color::aqua, github_url, ".");
 				break;
 			}
 		}
