@@ -191,7 +191,7 @@ int main() try {
 
 		auto output_file = home_path.ensured_directory_backslash().appended("output.txt");
 		auto batch = home_path.ensured_directory_backslash().appended("git_check_repos.bat");
-		auto batch_data = qpl::to_string("@echo off && git ls-remote ", github_url, " > ", output_file);
+		auto batch_data = qpl::to_string("git ls-remote ", github_url, " > ", output_file);
 		execute_batch(batch, batch_data);
 
 		auto lines = qpl::split_string(qpl::filesys::read_file(output_file), '\n');
