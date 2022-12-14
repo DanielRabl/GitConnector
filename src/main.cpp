@@ -195,11 +195,12 @@ int main() try {
 		execute_batch(batch, batch_data);
 
 		auto lines = qpl::split_string(qpl::filesys::read_file(output_file), '\n');
+		output_file.remove();
+
 		if (lines.empty()) {
-			qpl::println("error: empty git repos status output.txt");
+			qpl::println("error: empty output.txt");
 		}
 		else {
-			output_file.remove();
 			if (lines[0].starts_with("remote: Repository not found.")) {
 				qpl::println("error: ", github_url, ": no such repository exists.");
 			}
