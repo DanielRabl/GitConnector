@@ -243,9 +243,12 @@ int main() try {
 	execute_batch(batch, batch_data);
 
 	if (push) {
-		auto empty = git_target;
-		empty.append("empty");
-		empty.remove();
+		auto list = git_target.list_current_directory();
+		if (list.empty()) {
+			auto empty = git_target;
+			empty.append("empty");
+			empty.remove();
+		}
 	}
 	qpl::system_pause();
 }
