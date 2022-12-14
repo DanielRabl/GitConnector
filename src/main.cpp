@@ -188,6 +188,7 @@ int main() try {
 		}
 
 		github_url = qpl::to_string(github, "/", github_repos_name, ".git");
+		qpl::println("GITHUB_URL = \"", github_url, "\"");
 
 		auto output_file = home_path.ensured_directory_backslash().appended("output.txt");
 		auto batch = home_path.ensured_directory_backslash().appended("git_check_repos.bat");
