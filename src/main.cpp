@@ -188,27 +188,21 @@ int main() try {
 		}
 
 		github_url = qpl::to_string(github, "/", github_repos_name, ".git");
-		qpl::println("GITHUB_URL = \"", github_url, "\"");
 
 		auto output_file = home_path.ensured_directory_backslash().appended("output.txt");
 		auto batch = home_path.ensured_directory_backslash().appended("git_check_repos.bat");
-		auto batch_data = qpl::to_string("git ls-remote ", github_url, " > ", output_file);
+		auto batch_data = qpl::to_string("@echo off && git ls-remote ", github_url, " > ", output_file);
 		execute_batch(batch, batch_data);
-
+		
 		auto lines = qpl::split_string(qpl::filesys::read_file(output_file), '\n');
 		output_file.remove();
 
-		if (lines.empty()) {
-			qpl::println("error: empty output.txt");
+		if (!lines.empty() && lines[0].starts_with("remote: Repository not found.")) {
+			qpl::println("error: ", github_url, ": no such repository exists.");
 		}
 		else {
-			if (lines[0].starts_with("remote: Repository not found.")) {
-				qpl::println("error: ", github_url, ": no such repository exists.");
-			}
-			else {
-				qpl::println("found repository ", qpl::color::aqua, github_url, ".");
-				break;
-			}
+			qpl::println("found repository ", qpl::color::aqua, github_url, ".");
+			break;
 		}
 	}
 
